@@ -27,7 +27,7 @@ public class Tests
     [TestCaseSource("Cases")]
     public void Test1(Case testCase)
     {
-        new Solver().Solve(testCase);
+        Solver.Solve(testCase);
         Assert.Pass();
     }
 }

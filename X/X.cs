@@ -10,7 +10,7 @@ public class X
     public static void Main()
     {
         Case testCase = Case.Parse(Console.In);
-        int res = new Solver().Solve(testCase);
+        int res = Solver.Solve(testCase);
         Console.WriteLine(res);
     }
 }
@@ -61,29 +61,29 @@ public class Image
     }
 }
 
-public class Solver
+public static class Solver
 {
-    public int Solve(Case testCase)
+    public static int Solve(Case testCase)
     {
         Image.Prefix = testCase.Num.ToString();
 
-        new NoiseCleaner().Clean(testCase.Image);
+        NoiseCleaner.Clean(testCase.Image);
+
+
         return 0;
     }
 }
 
-public class NoiseCleaner
+public static class NoiseCleaner
 {
-    public NoiseCleaner() { }
-
-    public void Clean(Image image)
+    public static void Clean(Image image)
     {
         SquareCountFilter(image, 1, 5);
         SquareCountFilter(image, 1, 7);
         image.Save("cleaned");
     }
 
-    private void SquareCountFilter(Image image, int radius, int threshold)
+    private static void SquareCountFilter(Image image, int radius, int threshold)
     {
         int[] counts = new int[image.H * image.W];
 
@@ -99,4 +99,9 @@ public class NoiseCleaner
                 if (counts[ptr++] >= threshold) image[i, j] = true;
                 else image[i, j] = false;
     }
+}
+
+public class Tokenizer
+{
+    
 }
