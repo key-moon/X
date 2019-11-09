@@ -42,6 +42,17 @@ public class Solver
 {
     public int Solve(Image image)
     {
+        new NoiseCleaner().Clean(image);
+
+    }
+}
+
+public class NoiseCleaner
+{
+    public NoiseCleaner() { }
+
+    public Image Clean(Image image)
+    {
 
     }
 }
