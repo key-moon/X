@@ -70,10 +70,13 @@ public static class Solver
 {
     public static int Solve(Case testCase)
     {
-        ImageWriter.Add(testCase.Image);
-        NoiseCleaner.Clean(testCase.Image);
-        var separated = Separator.Separate(testCase.Image);
-        ImageWriter.Add(separated.ToArray());
+        Image image = testCase.Image;
+        ImageWriter.Add(image);
+        image.Clean();
+        ImageWriter.Add(image);
+        var separated = image.Separate().ToArray();
+        ImageWriter.Add(separated);
+
         ImageWriter.Write(testCase.Num.ToString());
         return 0;
     }
@@ -81,11 +84,10 @@ public static class Solver
 
 public static class NoiseCleaner
 {
-    public static void Clean(Image image)
+    public static void Clean(this Image image)
     {
         SquareCountFilter(image, 1, 5);
         SquareCountFilter(image, 1, 7);
-        ImageWriter.Add(image);
     }
 
     private static void SquareCountFilter(Image image, int radius, int threshold)
@@ -108,7 +110,7 @@ public static class NoiseCleaner
 
 public static class Separator
 {
-    public static IEnumerable<Image> Separate(Image image)
+    public static IEnumerable<Image> Separate(this Image image)
     {
         int minX = int.MaxValue;
         int maxX = 0;
