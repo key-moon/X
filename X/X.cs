@@ -10,7 +10,7 @@ public class X
     public static void Main()
     {
         Case testCase = Case.Parse(Console.In);
-        int res = new Solver().Solve(testCase.Image);
+        int res = new Solver().Solve(testCase);
         Console.WriteLine(res);
     }
 }
@@ -18,7 +18,7 @@ public class X
 public class Case
 {
     public int Num;
-    public Image Image
+    public Image Image;
     public static Case Parse(TextReader reader)
     {
         int testCaseNum = int.Parse(reader.ReadLine());
@@ -33,6 +33,7 @@ public class Case
 
 public class Image
 {
+    public static string Prefix;
     public readonly int H;
     public readonly int W;
     bool[] pixels;
@@ -51,13 +52,22 @@ public class Image
         get { return pixels[y * W + x]; }
         set { pixels[y * W + x] = value; }
     }
+    public void Save(string name)
+    {
+        using (Bitmap bmp = ImageUtil.ConvertToBitMap(this))
+        {
+            bmp.Save(Secret.ProjectPath + $@"\img\{name}_{Prefix}.png");
+        }
+    }
 }
 
 public class Solver
 {
-    public int Solve(Image image)
+    public int Solve(Case testCase)
     {
-        new NoiseCleaner().Clean(image);
+        Image.Prefix = testCase.Num.ToString();
+
+        new NoiseCleaner().Clean(testCase.Image);
         return 0;
     }
 }
@@ -69,11 +79,8 @@ public class NoiseCleaner
     public void Clean(Image image)
     {
         SquareCountFilter(image, 1, 5);
-        SquareCountFilter(image, 1, 6);
-        using (Bitmap bmp = ImageUtil.ConvertToBitMap(image))
-        {
-            bmp.Save(Secret.ProjectPath + @$"\img\cleaned.png");
-        }
+        SquareCountFilter(image, 1, 7);
+        image.Save("cleaned");
     }
 
     private void SquareCountFilter(Image image, int radius, int threshold)
