@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 #if DEBUG
 using System.Drawing;
@@ -8,18 +9,25 @@ public class X
 {
     public static void Main()
     {
-        int testCaseNum = int.Parse(Console.ReadLine());
-        int[] wh = Console.ReadLine().Split().Select(int.Parse).ToArray();
+        Case testCase = Case.Parse(Console.In);
+        int res = new Solver().Solve(testCase.Image);
+        Console.WriteLine(res);
+    }
+}
+
+public class Case
+{
+    public int Num;
+    public Image Image
+    public static Case Parse(TextReader reader)
+    {
+        int testCaseNum = int.Parse(reader.ReadLine());
+        int[] wh = reader.ReadLine().Split().Select(int.Parse).ToArray();
         int w = wh[0];
         int h = wh[1];
-        bool[][] pixels = Enumerable.Repeat(0, h).Select(_ => Console.ReadLine().Select(x => x == '#').ToArray()).ToArray();
+        bool[][] pixels = Enumerable.Repeat(0, h).Select(_ => reader.ReadLine().Select(x => x == '#').ToArray()).ToArray();
         Image image = new Image(h, w, pixels);
-        using (Bitmap bmp = ImageUtil.ConvertToBitMap(image))
-        {
-            bmp.Save(Secret.ProjectPath + @"\img\default.png");
-        }
-        int res = new Solver().Solve(image);
-        Console.WriteLine(res);
+        return new Case() { Num = testCaseNum, Image = image };
     }
 }
 
@@ -61,10 +69,10 @@ public class NoiseCleaner
     public void Clean(Image image)
     {
         SquareCountFilter(image, 1, 5);
-        SquareCountFilter(image, 1, 5);
+        SquareCountFilter(image, 1, 6);
         using (Bitmap bmp = ImageUtil.ConvertToBitMap(image))
         {
-            bmp.Save(Secret.ProjectPath + @"\img\cleaned.png");
+            bmp.Save(Secret.ProjectPath + @$"\img\cleaned.png");
         }
     }
 
