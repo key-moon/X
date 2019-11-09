@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Collections.Generic;
 #if DEBUG
 using System.Drawing;
 #endif
@@ -101,7 +102,37 @@ public static class NoiseCleaner
     }
 }
 
-public class Tokenizer
+public static class Separator
 {
-    
+    public static IEnumerable<Image> Separate(Image image)
+    {
+        int minX = int.MaxValue;
+        int maxX = 0;
+        int minY = int.MaxValue;
+        int maxY = 0;
+        for (int x = 0; x < image.W; x++)
+        {
+            bool hasPixel = false;
+            for (int y = 0; y < image.H; y++)
+                if (image[y, x])
+                {
+                    hasPixel = true;
+                    maxY = Math.Max(maxY, y);
+                    minY = Math.Min(minY, y);
+                }
+            if (hasPixel)
+            {
+                minX = Math.Min(minX, x);
+                maxX = x;
+            }
+            else
+            {
+                yield return Image.Trim(minY, maxY, minX, maxX);
+                minX = int.MaxValue;
+                maxX = 0;
+                minY = int.MaxValue;
+                maxY = 0;
+            }
+        }
+    }
 }
