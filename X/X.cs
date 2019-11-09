@@ -40,8 +40,8 @@ public class Image
     }
     public bool this[int y, int x]
     {
-        get { return pixels[y * H + x]; }
-        set { pixels[y * H + x] = value; }
+        get { return pixels[y * W + x]; }
+        set { pixels[y * W + x] = value; }
     }
 }
 
@@ -77,7 +77,7 @@ public class NoiseCleaner
                 if (image[y, x]) 
                     for (int dy = -radius; dy <= radius; dy++)
                         for (int dx = -radius; dx <= radius; dx++)
-                            counts[(y + dy) * image.H + (x + dx)]++;
+                            counts[(y + dy) * image.W + (x + dx)]++;
         int ptr = 0;
         for (int i = 0; i < image.H; i++)
             for (int j = 0; j < image.W; j++)
