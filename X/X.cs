@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Linq;
+#if DEBUG
+using System.Drawing;
+#endif
 
 public class X
 {
@@ -43,7 +46,7 @@ public class Solver
     public int Solve(Image image)
     {
         new NoiseCleaner().Clean(image);
-
+        return 0;
     }
 }
 
@@ -55,6 +58,10 @@ public class NoiseCleaner
     {
         SquareCountFilter(image, 1, 5);
         SquareCountFilter(image, 1, 5);
+        using (Bitmap bmp = ImageUtil.ConvertToBitMap(image))
+        {
+            bmp.Save(Secret.ProjectPath + @"\img\cleaned.png");
+        }
     }
 
     private void SquareCountFilter(Image image, int radius, int threshold)
