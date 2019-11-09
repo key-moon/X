@@ -70,6 +70,7 @@ public static class Solver
 {
     public static int Solve(Case testCase)
     {
+        ImageWriter.Add(testCase.Image);
         NoiseCleaner.Clean(testCase.Image);
         var separated = Separator.Separate(testCase.Image);
         ImageWriter.Add(separated.ToArray());
