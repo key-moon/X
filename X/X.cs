@@ -9,9 +9,9 @@ public class X
     public static void Main()
     {
         int testCaseNum = int.Parse(Console.ReadLine());
-        int[] hw = Console.ReadLine().Split().Select(int.Parse).ToArray();
-        int h = hw[0];
-        int w = hw[1];
+        int[] wh = Console.ReadLine().Split().Select(int.Parse).ToArray();
+        int w = wh[0];
+        int h = wh[1];
         bool[][] pixels = Enumerable.Repeat(0, h).Select(_ => Console.ReadLine().Select(x => x == '#').ToArray()).ToArray();
         Image image = new Image(h, w, pixels);
         int res = new Solver().Solve(image);
