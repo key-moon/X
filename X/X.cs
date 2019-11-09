@@ -68,14 +68,12 @@ public class Image
 
 public static class Solver
 {
-    static List<Bitmap> bitmaps = new List<Bitmap>();
-    public static int CaseNum;
     public static int Solve(Case testCase)
     {
-        CaseNum = testCase.Num;
         NoiseCleaner.Clean(testCase.Image);
         var separated = Separator.Separate(testCase.Image);
         ImageWriter.Add(separated.ToArray());
+        ImageWriter.Write(testCase.Num.ToString());
         return 0;
     }
 }

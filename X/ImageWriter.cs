@@ -9,6 +9,7 @@ public static class ImageWriter
     static List<Bitmap> bmps = new List<Bitmap>();
     public static void Add(Bitmap bmp) => bmps.Add(bmp);
     public static void Add(Image image) => Add(ConvertToBitMap(image));
+
     const int mergin = 10;
     public static void Add(Image[] images)
     {
@@ -31,6 +32,27 @@ public static class ImageWriter
         Add(bitmap);
     }
 
+    public static void Write(string name)
+    {
+        var h = bmps.Sum(x => x.Height) + mergin * (bmps.Count - 1);
+        var w = bmps.Max(x => x.Width);
+        Bitmap res = CreateFilledBitmap(h, w, Color.DarkGray);
+        int xOffset = 0;
+        int yOffset = 0;
+        foreach (var bmp in bmps)
+        {
+            xOffset = (w - bmp.Width) / 2;
+            for (int y = 0; y < bmp.Height; y++)
+                for (int x = 0; x < bmp.Width; x++)
+                    res.SetPixel(xOffset + x, yOffset + y, bmp.GetPixel(x, y));
+            yOffset += bmp.Height + mergin;
+            bmp.Dispose();
+        }
+        res.Save(Secret.ProjectPath + $@"\img\{name}.png");
+        res.Dispose();
+        bmps.Clear();
+    }
+
     private static Bitmap ConvertToBitMap(Image image)
     {
         Bitmap bitmap = new Bitmap(image.W, image.H);
@@ -39,6 +61,7 @@ public static class ImageWriter
                 bitmap.SetPixel(j, i, image[i, j] ? Color.Black : Color.White);
         return bitmap;
     }
+
     private static Bitmap CreateFilledBitmap(int h, int w, Color color)
     {
         var bitmap = new Bitmap(w, h);
