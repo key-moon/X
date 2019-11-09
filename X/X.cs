@@ -51,8 +51,26 @@ public class NoiseCleaner
 {
     public NoiseCleaner() { }
 
-    public Image Clean(Image image)
+    public void Clean(Image image)
     {
+        SquareCountFilter(image, 1, 5);
+        SquareCountFilter(image, 1, 5);
+    }
 
+    private void SquareCountFilter(Image image, int radius, int threshold)
+    {
+        int[] counts = new int[image.H * image.W];
+
+        for (int y = radius; y < image.H - radius; y++)
+            for (int x = radius; x < image.W - radius; x++)
+                if (image[y, x]) 
+                    for (int dy = -radius; dy <= radius; dy++)
+                        for (int dx = -radius; dx <= radius; dx++)
+                            counts[dy * image.H + dx]++;
+        int ptr = 0;
+        for (int i = 0; i < image.H; i++)
+            for (int j = 0; j < image.W; j++)
+                if (counts[ptr++] >= threshold) image[i, j] = true;
+                else image[i, j] = false;
     }
 }
