@@ -1,14 +1,16 @@
-﻿#if DEBUG
-using System;
-using System.IO;
+﻿using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.Text;
 using System.Drawing;
 
-public static class ImageUtil
+#region DEBUG
+public static class ImageWriter
 {
-    public static Bitmap JoinHorizontal(this Image[] images, int mergin)
+    static List<Bitmap> bmps = new List<Bitmap>();
+    public static void Add(Bitmap bmp) => bmps.Add(bmp);
+    public static void Add(Image image) => Add(ConvertToBitMap(image));
+    const int mergin = 10;
+    public static void Add(Image[] images)
     {
         var h = images.Max(x => x.H);
         var w = images.Sum(x => x.W) + mergin * (images.Length - 1);
@@ -26,20 +28,10 @@ public static class ImageUtil
 
             xOffset += image.W + mergin;
         }
-        return bitmap;
+        Add(bitmap);
     }
-    public static void Save(this Image image, string name)
-    {
-        using (Bitmap bmp = ConvertToBitMap(image))
-        {
-            bmp.Save(Secret.ProjectPath + $@"\img\{name}_{Solver.CaseNum}.png");
-        }
-    }
-    public static void SaveWithName(this Bitmap bmp, string name)
-    {
-        bmp.Save(Secret.ProjectPath + $@"\img\{name}_{Solver.CaseNum}.png");
-    }
-    public static Bitmap ConvertToBitMap(Image image)
+
+    private static Bitmap ConvertToBitMap(Image image)
     {
         Bitmap bitmap = new Bitmap(image.W, image.H);
         for (int i = 0; i < image.H; i++)
@@ -47,7 +39,7 @@ public static class ImageUtil
                 bitmap.SetPixel(j, i, image[i, j] ? Color.Black : Color.White);
         return bitmap;
     }
-    public static Bitmap CreateFilledBitmap(int h, int w, Color color)
+    private static Bitmap CreateFilledBitmap(int h, int w, Color color)
     {
         var bitmap = new Bitmap(w, h);
         for (int x = 0; x < w; x++)
@@ -56,4 +48,4 @@ public static class ImageUtil
         return bitmap;
     }
 }
-#endif
+#endregion

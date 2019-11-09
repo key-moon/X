@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
+using System.Drawing;
 
 public class X
 {
@@ -67,13 +68,14 @@ public class Image
 
 public static class Solver
 {
+    static List<Bitmap> bitmaps = new List<Bitmap>();
     public static int CaseNum;
     public static int Solve(Case testCase)
     {
         CaseNum = testCase.Num;
         NoiseCleaner.Clean(testCase.Image);
         var separated = Separator.Separate(testCase.Image);
-        separated.ToArray().JoinHorizontal(10).SaveWithName("separated");
+        ImageWriter.Add(separated.ToArray());
         return 0;
     }
 }
@@ -84,7 +86,7 @@ public static class NoiseCleaner
     {
         SquareCountFilter(image, 1, 5);
         SquareCountFilter(image, 1, 7);
-        image.Save("cleaned");
+        ImageWriter.Add(image);
     }
 
     private static void SquareCountFilter(Image image, int radius, int threshold)
