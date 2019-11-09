@@ -14,6 +14,10 @@ public class X
         int h = wh[1];
         bool[][] pixels = Enumerable.Repeat(0, h).Select(_ => Console.ReadLine().Select(x => x == '#').ToArray()).ToArray();
         Image image = new Image(h, w, pixels);
+        using (Bitmap bmp = ImageUtil.ConvertToBitMap(image))
+        {
+            bmp.Save(Secret.ProjectPath + @"\img\default.png");
+        }
         int res = new Solver().Solve(image);
         Console.WriteLine(res);
     }
@@ -73,7 +77,7 @@ public class NoiseCleaner
                 if (image[y, x]) 
                     for (int dy = -radius; dy <= radius; dy++)
                         for (int dx = -radius; dx <= radius; dx++)
-                            counts[dy * image.H + dx]++;
+                            counts[(y + dy) * image.H + (x + dx)]++;
         int ptr = 0;
         for (int i = 0; i < image.H; i++)
             for (int j = 0; j < image.W; j++)
