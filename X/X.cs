@@ -38,11 +38,14 @@ public class Image
     public readonly int H;
     public readonly int W;
     bool[] pixels;
-    public Image(int h, int w, bool[][] pixels)
+    public Image(int h, int w)
     {
         H = h;
         W = w;
-        this.pixels = new bool[H * W];
+        pixels = new bool[H * W];
+    }
+    public Image(int h, int w, bool[][] pixels) : this(h, w)
+    {
         int ptr = 0;
         for (int i = 0; i < H; i++)
             for (int j = 0; j < W; j++)
@@ -59,6 +62,16 @@ public class Image
         {
             bmp.Save(Secret.ProjectPath + $@"\img\{name}_{Prefix}.png");
         }
+    }
+    public Image Trim(int minY, int maxY, int minX, int maxX)
+    {
+        var newH = maxY - minY + 1;
+        var newW = maxX - minX + 1;
+        var res = new Image(newH, newW);
+        for (int y = 0; y < newH; y++)
+            for (int x = 0; x < newW; x++)
+                res[y, x] = this[minY + y, minX + x];
+        return res;
     }
 }
 
@@ -127,7 +140,7 @@ public static class Separator
             }
             else
             {
-                yield return Image.Trim(minY, maxY, minX, maxX);
+                yield return image.Trim(minY, maxY, minX, maxX);
                 minX = int.MaxValue;
                 maxX = 0;
                 minY = int.MaxValue;
