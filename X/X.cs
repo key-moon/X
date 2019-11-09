@@ -2,9 +2,6 @@
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
-#if DEBUG
-using System.Drawing;
-#endif
 
 public class X
 {
@@ -56,13 +53,6 @@ public class Image
         get { return pixels[y * W + x]; }
         set { pixels[y * W + x] = value; }
     }
-    public void Save(string name)
-    {
-        using (Bitmap bmp = ImageUtil.ConvertToBitMap(this))
-        {
-            bmp.Save(Secret.ProjectPath + $@"\img\{name}_{Prefix}.png");
-        }
-    }
     public Image Trim(int minY, int maxY, int minX, int maxX)
     {
         var newH = maxY - minY + 1;
@@ -77,12 +67,11 @@ public class Image
 
 public static class Solver
 {
+    public static int CaseNum;
     public static int Solve(Case testCase)
     {
-        Image.Prefix = testCase.Num.ToString();
-
+        CaseNum = testCase.Num;
         NoiseCleaner.Clean(testCase.Image);
-
 
         return 0;
     }

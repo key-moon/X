@@ -5,8 +5,15 @@ using System.Collections.Generic;
 using System.Text;
 using System.Drawing;
 
-public class ImageUtil
+public static class ImageUtil
 {
+    public static void Save(this Image image, string name)
+    {
+        using (Bitmap bmp = ConvertToBitMap(image))
+        {
+            bmp.Save(Secret.ProjectPath + $@"\img\{name}_{Solver.CaseNum}.png");
+        }
+    }
     public static Bitmap ConvertToBitMap(Image image)
     {
         Bitmap bitmap = new Bitmap(image.W, image.H);
