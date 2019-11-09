@@ -72,7 +72,8 @@ public static class Solver
     {
         CaseNum = testCase.Num;
         NoiseCleaner.Clean(testCase.Image);
-
+        var separated = Separator.Separate(testCase.Image);
+        separated.ToArray().JoinHorizontal(10).SaveWithName("separated");
         return 0;
     }
 }
@@ -127,7 +128,7 @@ public static class Separator
                 minX = Math.Min(minX, x);
                 maxX = x;
             }
-            else
+            else if (minX < x)
             {
                 yield return image.Trim(minY, maxY, minX, maxX);
                 minX = int.MaxValue;
