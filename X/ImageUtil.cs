@@ -22,7 +22,7 @@ public static class ImageUtil
 
             for (int y = 0; y < image.H; y++)
                 for (int x = 0; x < image.W; x++)
-                    if (image[y, x]) bitmap.SetPixel(xOffset + x, yOffset + y, Color.Black);
+                    bitmap.SetPixel(xOffset + x, yOffset + y, image[y, x] ? Color.Black : Color.White);
 
             xOffset += image.W + mergin;
         }
@@ -34,6 +34,10 @@ public static class ImageUtil
         {
             bmp.Save(Secret.ProjectPath + $@"\img\{name}_{Solver.CaseNum}.png");
         }
+    }
+    public static void SaveWithName(this Bitmap bmp, string name)
+    {
+        bmp.Save(Secret.ProjectPath + $@"\img\{name}_{Solver.CaseNum}.png");
     }
     public static Bitmap ConvertToBitMap(Image image)
     {
