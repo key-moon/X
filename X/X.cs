@@ -35,6 +35,7 @@ public class Image
     public static string Prefix;
     public readonly int H;
     public readonly int W;
+    public double Ratio => (double)H / W;
     bool[] pixels;
     public Image(int h, int w)
     {
@@ -92,13 +93,13 @@ public static class Solver
 
 public static class NoiseCleaner
 {
-    public static void Clean(this Image image)
+    public static void Clean(this Image image, int filter1 = 5, int filter2 = 6)
     {
-        SquareCountFilter(image, 1, 5);
-        SquareCountFilter(image, 1, 7);
+        SquareCountFilter(image, 1, filter1);
+        SquareCountFilter(image, 1, filter2);
     }
 
-    private static void SquareCountFilter(Image image, int radius, int threshold)
+    public static void SquareCountFilter(this Image image, int radius, int threshold)
     {
         int[] counts = new int[image.H * image.W];
 
@@ -148,6 +149,8 @@ public static class Separator
                 maxY = 0;
             }
         }
+        if (minX < image.W)
+            yield return image.Trim(minY, maxY, minX, maxX);
     }
 }
 
@@ -173,7 +176,7 @@ public static class RotateReducer
         for (int degree = -range; degree <= range; degree++)
         {
             var img = image.Rotate(degree).Separate().First();
-            if (img.W * img.H < minImg.W * minImg.H) minImg = img;
+            if (img.Ratio > minImg.Ratio) minImg = img;
         }
         return minImg;
     }
@@ -182,9 +185,9 @@ public static class RotateReducer
     {
         int xOffset = (int)Math.Ceiling(Math.Max(0, image.H * Sin(degree)));
         int yOffset = (int)Math.Ceiling(Math.Max(0, image.W * Sin(-degree)));
-        
+
         int w = (int)Math.Ceiling(
-                    image.W * Cos(Math.Abs(degree)) + 
+                    image.W * Cos(Math.Abs(degree)) +
                     image.H * Sin(Math.Abs(degree))
                 ) + 4;
         int h = (int)Math.Ceiling(
@@ -237,31 +240,44 @@ public class CharactorParser
 
     private void ChangeState(char c)
     {
-        if (IsNum(c) || IsCloseBracket(c))
+        if (IsNumChar(c) || IsCloseBracketChar(c))
         {
-            if (IsCloseBracket(c)) depth--;
+            if (IsCloseBracketChar(c)) depth--;
             NextChar = depth == 0 ? NextChar.Operator : NextChar.CloseBracketOrOperator;
         }
-        else if (IsOperator(c) || IsOpenBracket(c))
+        else if (IsOperatorChar(c) || IsOpenBracketChar(c))
         {
-            if (IsOpenBracket(c)) depth++;
+            if (IsOpenBracketChar(c)) depth++;
             NextChar = NextChar.OpenBracketOrNum;
         }
     }
 
-    private bool IsNum(char c) => '0' <= c && c <= '9';
-    private bool IsOperator(char c) => c == '+' || c == '-' || c == '*' || c == '/';
-    private bool IsOpenBracket(char c) => c == '(';
-    private bool IsCloseBracket(char c) => c == ')';
+    private bool IsNumChar(char c) => '0' <= c && c <= '9';
+    private bool IsOperatorChar(char c) => c == '+' || c == '-' || c == '*' || c == '/';
+    private bool IsOpenBracketChar(char c) => c == '(';
+    private bool IsCloseBracketChar(char c) => c == ')';
+
+    const double BracketRatioMinThreshold = 2.0;
+    const double BracketRatioMaxThreshold = 4.0;
 
     private bool IsOpenBracket(Image img)
     {
-        return false;
+        var reduced = img.ReduceRotate(30);
+        if (reduced.Ratio < BracketRatioMinThreshold) return false;
+        reduced = reduced.Separate().First();
+        var edgeCenter = reduced.VerticalCutCenter(0);
+        return reduced.Ratio < BracketRatioMaxThreshold &&
+            Math.Abs(edgeCenter - 0.5) < 0.15;
     }
 
     private bool IsCloseBracket(Image img)
     {
-        return false;
+        var reduced = img.ReduceRotate(30);
+        if (reduced.Ratio < BracketRatioMinThreshold) return false;
+        reduced = reduced.Separate().First();
+        var edgeCenter = reduced.VerticalCutCenter(1);
+        return reduced.Ratio < BracketRatioMaxThreshold &&
+            Math.Abs(edgeCenter - 0.5) < 0.2;
     }
 
     private char ClassifyOperator(Image img)
@@ -284,6 +300,55 @@ enum NextChar
     CloseBracket = 8,
     OpenBracketOrNum = OpenBracket | Num,
     CloseBracketOrOperator = CloseBracket | Operator
+}
+
+public static class Cut
+{
+    public static int VerticalCutCount(this Image image, double pos)
+    {
+        bool last = false;
+        int count = 0;
+        int x = (int)Math.Round((image.W - 1) * pos);
+        for (int i = 0; i < image.H; i++)
+        {
+            if (!last && image[i, x])
+                count++;
+            last = image[i, x];
+        }
+        return count;
+    }
+    public static int HorizontalCutCount(this Image image, double pos)
+    {
+        bool last = false;
+        int count = 0;
+        int y = (int)Math.Round((image.H - 1) * pos);
+        for (int i = 0; i < image.W; i++)
+        {
+            if (!last && image[y, i])
+                count++;
+            last = image[y, i];
+        }
+        return count;
+    }
+    public static double VerticalCutCenter(this Image image, double pos)
+    {
+        List<int> verts = new List<int>();
+        int x = (int)Math.Round((image.W - 1) * pos);
+        for (int i = 0; i < image.H; i++)
+            if (image[i, x])
+                verts.Add(i);
+        return verts.Count == 0 ? 0.5 : verts.Average() / image.H;
+    }
+    public static double HorizontalCutCenter(this Image image, double pos)
+    {
+        List<int> verts = new List<int>();
+        int y = (int)Math.Round((image.H - 1) * pos);
+        for (int i = 0; i < image.W; i++)
+            if (image[y, i])
+                verts.Add(i);
+        
+        return verts.Count == 0 ? 0.5 : verts.Average() / image.W;
+    }
 }
 
 public static class FormulaEvaluator
