@@ -78,13 +78,15 @@ public static class Solver
         ImageWriter.Add(separated);
 
         var parser = new CharactorParser();
-        string res = "";
+        string parsed = "";
         foreach (var charImg in separated)
-            res += parser.Parse(charImg);
+            parsed += parser.Parse(charImg);
  
-        ImageWriter.Add(res.Select(x => FontData.Data[x]).ToArray());
+        ImageWriter.Add(parsed.Select(x => FontData.Data[x]).ToArray());
         ImageWriter.Write(testCase.Num.ToString());
-        return 0;
+
+        int evalRes = FormulaEvaluator.Eval(parsed);
+        return evalRes;
     }
 }
 
@@ -154,7 +156,7 @@ public class CharactorParser
     public char Parse(Image charImage) => '8';
 }
 
-public static class RotationReducer
+public static class FormulaEvaluator
 {
-
+    public static int Eval(string expression) => 0;
 }
