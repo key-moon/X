@@ -198,8 +198,8 @@ public static class RotateReducer
         {
             for (int x = 0; x < image.W; x++)
             {
-                var newY = (int)Math.Round(x * Cos(degree) - y * Sin(degree));
-                var newX = (int)Math.Round(y * Cos(degree) + x * Sin(degree));
+                var newY = (int)Math.Round(x * Cos(degree) - y * Sin(degree)) + yOffset;
+                var newX = (int)Math.Round(y * Cos(degree) + x * Sin(degree)) + xOffset;
                 res[newY, newX] = image[y, x];
             }
         }
