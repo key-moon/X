@@ -256,22 +256,22 @@ public class CharactorParser
 
     private bool IsOpenBracket(Image img)
     {
-
+        return false;
     }
 
     private bool IsCloseBracket(Image img)
     {
-
+        return false;
     }
 
     private char ClassifyOperator(Image img)
     {
-
+        return '*';
     }
 
     private char ClassifyNumber(Image img)
     {
-
+        return '0';
     }
 }
 
