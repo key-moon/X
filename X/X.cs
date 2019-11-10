@@ -264,7 +264,6 @@ public class CharactorParser
     {
         var reduced = img.ReduceRotate(30);
         if (reduced.Ratio < BracketRatioMinThreshold) return false;
-        reduced = reduced.Separate().First();
         var edgeCenter = reduced.VerticalCutCenter(0);
         return reduced.Ratio < BracketRatioMaxThreshold &&
             Math.Abs(edgeCenter - 0.5) < 0.15;
@@ -274,15 +273,35 @@ public class CharactorParser
     {
         var reduced = img.ReduceRotate(30);
         if (reduced.Ratio < BracketRatioMinThreshold) return false;
-        reduced = reduced.Separate().First();
         var edgeCenter = reduced.VerticalCutCenter(1);
         return reduced.Ratio < BracketRatioMaxThreshold &&
             Math.Abs(edgeCenter - 0.5) < 0.2;
     }
 
+    const double MinusRatioMaxThreshold = 0.6;
+    const double DivideRatioMinThreshold = 2;
     private char ClassifyOperator(Image img)
     {
-        return '*';
+        if (img.Ratio < MinusRatioMaxThreshold) return '-';
+        var reduced = img.ReduceRotate(30).Separate().First();
+        if (DivideRatioMinThreshold < reduced.Ratio) return '/';
+
+        int bottomCount = img.HorizontalCutCount(0.95);
+        if (bottomCount >= 2) return '*';
+
+        int count1 = img.HorizontalCutCount(0.2);
+        int count2 = img.HorizontalCutCount(0.8);
+        int count3 = img.VerticalCutCount(0.2);
+        int count4 = img.VerticalCutCount(0.8);
+        if ((count1 | count2 | count3 | count4) >= 2) return '*';
+
+        int sum1 = img.SumArea(0, 0.15, 0, 0.15);
+        int sum2 = img.SumArea(0.85, 1, 0, 0.15);
+        int sum3 = img.SumArea(0, 0.15, 0.85, 1);
+        int sum4 = img.SumArea(0.85, 1, 0.85, 1);
+        if ((sum1 | sum2 | sum3 | sum4) >= 4) return '*';
+
+        return '+';
     }
 
     private char ClassifyNumber(Image img)
@@ -348,6 +367,22 @@ public static class Cut
                 verts.Add(i);
         
         return verts.Count == 0 ? 0.5 : verts.Average() / image.W;
+    }
+}
+
+public static class Area
+{
+    public static int SumArea(this Image image, double yd, double yu, double xd, double xu)
+    {
+        int xMin = (int)Math.Round((image.W - 1) * xd);
+        int xMax = (int)Math.Round((image.W - 1) * xu);
+        var yMin = (int)Math.Round((image.H - 1) * yd);
+        var yMax = (int)Math.Round((image.H - 1) * yu);
+        var res = 0;
+        for (int y = yMax; y <= yMax; y++)
+            for (int x = xMin; x <= xMax; x++)
+                if (image[y, x]) res++;
+        return res;
     }
 }
 
