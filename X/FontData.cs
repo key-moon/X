@@ -9,8 +9,7 @@ static class FontData
     public static Dictionary<char, Image> Data = Directory.GetFiles(Secret.ProjectPath + "/font").ToDictionary
         (
             x => FileNameToChar(Path.GetFileName(x)),
-            x => Case.Parse(new StreamReader(x)).Image;
-            
+            x => Case.Parse(new StreamReader(x)).Image
         );
 
     public static char FileNameToChar(string filename)
