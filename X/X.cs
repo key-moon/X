@@ -82,7 +82,9 @@ public static class Solver
         string parsed = "";
         foreach (var charImg in separated)
             parsed += parser.Parse(charImg);
- 
+
+        Console.WriteLine(parsed);
+
         ImageWriter.Add(parsed.Select(x => FontData.Data[x]).ToArray());
         ImageWriter.Write(testCase.Num.ToString());
 
