@@ -153,8 +153,8 @@ public static class Separator
 
 public static class RotateReducer
 {
-    static double[] SinCache = Enumerable.Range(0, 30).Select(x => Math.Sin(x * Math.PI / 180)).ToArray();
-    static double[] CosCache = Enumerable.Range(0, 30).Select(x => Math.Cos(x * Math.PI / 180)).ToArray();
+    static double[] SinCache = Enumerable.Range(0, 31).Select(x => Math.Sin(x * Math.PI / 180)).ToArray();
+    static double[] CosCache = Enumerable.Range(0, 31).Select(x => Math.Cos(x * Math.PI / 180)).ToArray();
 
     private static double Sin(int degree)
     {
@@ -173,24 +173,24 @@ public static class RotateReducer
         for (int degree = -range; degree <= range; degree++)
         {
             var img = image.Rotate(degree).Separate().First();
-            if (img.W < minImg.W) minImg = img;
+            if (img.W * img.H < minImg.W * minImg.H) minImg = img;
         }
         return minImg;
     }
 
     public static Image Rotate(this Image image, int degree)
     {
-        int xOffset = (int)Math.Ceiling(Math.Max(0, image.H * Sin(-degree)));
-        int yOffset = (int)Math.Ceiling(Math.Max(0, image.W * Sin(degree)));
+        int xOffset = (int)Math.Ceiling(Math.Max(0, image.H * Sin(degree)));
+        int yOffset = (int)Math.Ceiling(Math.Max(0, image.W * Sin(-degree)));
         
         int w = (int)Math.Ceiling(
                     image.W * Cos(Math.Abs(degree)) + 
                     image.H * Sin(Math.Abs(degree))
-                ) + 1;
+                ) + 4;
         int h = (int)Math.Ceiling(
                     image.W * Sin(Math.Abs(degree)) +
                     image.H * Cos(Math.Abs(degree))
-                ) + 1;
+                ) + 4;
 
         var res = new Image(h, w);
 
@@ -198,8 +198,8 @@ public static class RotateReducer
         {
             for (int x = 0; x < image.W; x++)
             {
-                var newY = (int)Math.Round(x * Cos(degree) - y * Sin(degree)) + yOffset;
-                var newX = (int)Math.Round(y * Cos(degree) + x * Sin(degree)) + xOffset;
+                var newX = (int)Math.Round(x * Cos(degree) - y * Sin(degree)) + xOffset;
+                var newY = (int)Math.Round(y * Cos(degree) + x * Sin(degree)) + yOffset;
                 res[newY, newX] = image[y, x];
             }
         }
@@ -224,13 +224,13 @@ public class CharactorParser
 
     public char Classify(Image charImage)
     {
-        if ((NextChar | NextChar.OpenBracket) == NextChar.OpenBracket)
+        if ((NextChar & NextChar.OpenBracket) == NextChar.OpenBracket)
             if (IsOpenBracket(charImage)) return '(';
-        if ((NextChar | NextChar.CloseBracket) == NextChar.CloseBracket)
+        if ((NextChar & NextChar.CloseBracket) == NextChar.CloseBracket)
             if (IsCloseBracket(charImage)) return ')';
-        if ((NextChar | NextChar.Num) == NextChar.Num)
+        if ((NextChar & NextChar.Num) == NextChar.Num)
             return ClassifyNumber(charImage);
-        if ((NextChar | NextChar.Operator) == NextChar.Operator)
+        if ((NextChar & NextChar.Operator) == NextChar.Operator)
             return ClassifyOperator(charImage);
         throw new Exception();
     }
