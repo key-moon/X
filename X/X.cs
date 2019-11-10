@@ -151,9 +151,139 @@ public static class Separator
     }
 }
 
+public static class RotateReducer
+{
+    static double[] SinCache = Enumerable.Range(0, 30).Select(x => Math.Sin(x * Math.PI / 180)).ToArray();
+    static double[] CosCache = Enumerable.Range(0, 30).Select(x => Math.Cos(x * Math.PI / 180)).ToArray();
+
+    private static double Sin(int degree)
+    {
+        var sign = Math.Sign(degree);
+        return sign * SinCache[Math.Abs(degree)];
+    }
+
+    private static double Cos(int degree)
+    {
+        return CosCache[Math.Abs(degree)];
+    }
+
+    public static Image ReduceRotate(this Image image, int range)
+    {
+        Image minImg = image;
+        for (int degree = -range; degree <= range; degree++)
+        {
+            var img = image.Rotate(degree).Separate().First();
+            if (img.W < minImg.W) minImg = img;
+        }
+        return minImg;
+    }
+
+    public static Image Rotate(this Image image, int degree)
+    {
+        int xOffset = (int)Math.Ceiling(Math.Max(0, image.H * Sin(-degree)));
+        int yOffset = (int)Math.Ceiling(Math.Max(0, image.W * Sin(degree)));
+        
+        int w = (int)Math.Ceiling(
+                    image.W * Cos(Math.Abs(degree)) + 
+                    image.H * Sin(Math.Abs(degree))
+                ) + 1;
+        int h = (int)Math.Ceiling(
+                    image.W * Sin(Math.Abs(degree)) +
+                    image.H * Cos(Math.Abs(degree))
+                ) + 1;
+
+        var res = new Image(h, w);
+
+        for (int y = 0; y < image.H; y++)
+        {
+            for (int x = 0; x < image.W; x++)
+            {
+                var newY = (int)Math.Round(x * Cos(degree) - y * Sin(degree));
+                var newX = (int)Math.Round(y * Cos(degree) + x * Sin(degree));
+                res[newY, newX] = image[y, x];
+            }
+        }
+
+        return res;
+    }
+}
+
 public class CharactorParser
 {
-    public char Parse(Image charImage) => '8';
+    int depth = 0;
+    //   +-*/ 
+    // ) +-*/
+    // ( 0-9
+    NextChar NextChar = NextChar.OpenBracketOrNum;
+    public char Parse(Image charImage)
+    {
+        var res = Classify(charImage);
+        ChangeState(res);
+        return res;
+    }
+
+    public char Classify(Image charImage)
+    {
+        if ((NextChar | NextChar.OpenBracket) == NextChar.OpenBracket)
+            if (IsOpenBracket(charImage)) return '(';
+        if ((NextChar | NextChar.CloseBracket) == NextChar.CloseBracket)
+            if (IsCloseBracket(charImage)) return ')';
+        if ((NextChar | NextChar.Num) == NextChar.Num)
+            return ClassifyNumber(charImage);
+        if ((NextChar | NextChar.Operator) == NextChar.Operator)
+            return ClassifyOperator(charImage);
+        throw new Exception();
+    }
+
+    private void ChangeState(char c)
+    {
+        if (IsNum(c) || IsCloseBracket(c))
+        {
+            if (IsCloseBracket(c)) depth--;
+            NextChar = depth == 0 ? NextChar.Operator : NextChar.CloseBracketOrOperator;
+        }
+        else if (IsOperator(c) || IsOpenBracket(c))
+        {
+            if (IsOpenBracket(c)) depth++;
+            NextChar = NextChar.OpenBracketOrNum;
+        }
+    }
+
+    private bool IsNum(char c) => '0' <= c && c <= '9';
+    private bool IsOperator(char c) => c == '+' || c == '-' || c == '*' || c == '/';
+    private bool IsOpenBracket(char c) => c == '(';
+    private bool IsCloseBracket(char c) => c == ')';
+
+    private bool IsOpenBracket(Image img)
+    {
+
+    }
+
+    private bool IsCloseBracket(Image img)
+    {
+
+    }
+
+    private char ClassifyOperator(Image img)
+    {
+
+    }
+
+    private char ClassifyNumber(Image img)
+    {
+
+    }
+}
+
+[Flags]
+enum NextChar
+{
+    Num = 1,
+    Operator = 2,
+    OpenBracket = 4,
+    CloseBracket = 8,
+    OpenBracketOrNum = OpenBracket | Num,
+    CloseBracketOrOperator = CloseBracket | Operator
 }
 
 public static class FormulaEvaluator
