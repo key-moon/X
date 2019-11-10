@@ -1,9 +1,10 @@
-﻿using System;
+﻿//#undef DEBUG
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Drawing;
 
-#region DEBUG
+#if DEBUG
 public static class ImageWriter
 {
     static List<Bitmap> bmps = new List<Bitmap>();
@@ -71,4 +72,16 @@ public static class ImageWriter
         return bitmap;
     }
 }
-#endregion
+#else
+public static class ImageWriter
+{
+    static List<Bitmap> bmps = new List<Bitmap>();
+    public static void Add(Bitmap bmp) { }
+    public static void Add(Image image) { }
+
+    const int mergin = 10;
+    public static void Add(Image[] images) { }
+
+    public static void Write(string name) { }
+}
+#endif
