@@ -77,6 +77,12 @@ public static class Solver
         var separated = image.Separate().ToArray();
         ImageWriter.Add(separated);
 
+        var parser = new CharactorParser();
+        string res = "";
+        foreach (var charImg in separated)
+            res += parser.Parse(charImg);
+ 
+        ImageWriter.Add(res.Select(x => FontData.Data[x]).ToArray());
         ImageWriter.Write(testCase.Num.ToString());
         return 0;
     }
@@ -141,4 +147,14 @@ public static class Separator
             }
         }
     }
+}
+
+public class CharactorParser
+{
+    public char Parse(Image charImage) => '8';
+}
+
+public static class RotationReducer
+{
+
 }
